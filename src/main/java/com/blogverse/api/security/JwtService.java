@@ -33,13 +33,20 @@ public class JwtService {
 				.getPayload();
 	}
 
-	private String getUsernameFromToken(String token) {
+	public String getUsernameFromToken(String token) {
 		return getClaimsFromToken(token).getSubject();
 	}
 
 	private boolean isTokenExpired(String token) {
 		Claims claims = getClaimsFromToken(token);
 		return claims.getExpiration().before(new Date());
+	}
+
+	public boolean isTokenValid(String token, UserDetails userDetails) {
+		String usernameFromToken = getUsernameFromToken(token);
+		String userNameFromUserDetails = userDetails.getUsername();
+
+		return usernameFromToken.equals(userNameFromUserDetails) && !isTokenExpired(token);
 	}
 
 	public String generateToken(UserDetails userDetails) {
@@ -52,10 +59,4 @@ public class JwtService {
 				.compact();
 	}
 
-	public boolean isTokenValid(String token, UserDetails userDetails) {
-		String usernameFromToken = getUsernameFromToken(token);
-		String userNameFromUserDetails = userDetails.getUsername();
-
-		return usernameFromToken.equals(userNameFromUserDetails) && !isTokenExpired(token);
-	}
 }
