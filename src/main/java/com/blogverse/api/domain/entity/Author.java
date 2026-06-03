@@ -3,6 +3,7 @@ package com.blogverse.api.domain.entity;
 import com.blogverse.api.domain.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -20,6 +21,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Author implements UserDetails {
 
 			@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,6 +38,7 @@ public class Author implements UserDetails {
 			private boolean isActive;
 
 			@Enumerated(EnumType.STRING)
+			@Builder.Default
 			private Role role = Role.AUTHOR;
 
 			@CreationTimestamp

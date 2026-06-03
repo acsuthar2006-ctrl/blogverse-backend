@@ -58,7 +58,7 @@ jwt:
 logging:
   level:
     com.blogverse: DEBUG
-    org.springframework.security: INFO
+    org.springframework.security: DEBUG
     com.zaxxer.hikari: INFO
 
 # --- Actuator (Monitoring) ---
