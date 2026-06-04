@@ -24,27 +24,27 @@ import java.util.List;
 @Builder
 public class Author implements UserDetails {
 
-			@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-			private Long id;
+	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-			@Column(name = "username")
-			private String userName;
+	@Column(name = "username")
+	private String userName;
 
-			private String email;
-			private String password;
-			private String fullName;
-			private String bio;
+	private String email;
+	private String password;
+	private String fullName;
+	private String bio;
 
-			private boolean isActive;
+	private boolean isActive;
 
-			@Enumerated(EnumType.STRING)
-			@Builder.Default
-			private Role role = Role.AUTHOR;
+	@Enumerated(EnumType.STRING)
+	@Builder.Default
+	private Role role = Role.AUTHOR;
 
-			@CreationTimestamp
-			private LocalDateTime createdAt;
-			@UpdateTimestamp
-			private LocalDateTime updatedAt;
+	@CreationTimestamp
+	private LocalDateTime createdAt;
+	@UpdateTimestamp
+	private LocalDateTime updatedAt;
 
 
 	@Override
