@@ -5,7 +5,6 @@ import com.blogverse.api.dto.request.LoginRequest;
 import com.blogverse.api.dto.request.RegisterRequest;
 import com.blogverse.api.dto.response.AuthResponse;
 import com.blogverse.api.exception.EmailAlreadyExistsException;
-import com.blogverse.api.exception.ResourceNotFoundException;
 import com.blogverse.api.repository.AuthorRepository;
 import com.blogverse.api.security.JwtService;
 import com.blogverse.api.service.AuthService;
@@ -31,20 +30,20 @@ public class AuthServiceImpl implements AuthService {
 			throw new EmailAlreadyExistsException("Email Already Exists");
 		}
 
-		String hashesPassword =	passwordEncoder.encode(registerRequest.password());
+		String hashesPassword = passwordEncoder.encode(registerRequest.password());
 
 		Author author = Author.builder()
-			.email(email)
-			.password(hashesPassword)
-			.userName(registerRequest.username())
-			.fullName(registerRequest.fullName())
-			.isActive(true)
-			.build();
+				.email(email)
+				.password(hashesPassword)
+				.userName(registerRequest.username())
+				.fullName(registerRequest.fullName())
+				.isActive(true)
+				.build();
 
 		authorRepository.save(author);
 
 		String token = jwtService.generateToken(author);
-		return new AuthResponse(token , email , author.getRole());
+		return new AuthResponse(token, email, author.getRole());
 	}
 
 	@Override
@@ -54,12 +53,11 @@ public class AuthServiceImpl implements AuthService {
 		String password = loginRequest.password();
 
 		var authentication = authenticationManager.authenticate(
-			new UsernamePasswordAuthenticationToken(email, password)
-		);
+				new UsernamePasswordAuthenticationToken(email, password));
 
 		Author author = (Author) authentication.getPrincipal();
 		String token = jwtService.generateToken(author);
 
-		return new AuthResponse(token , email , author.getRole());
+		return new AuthResponse(token, email, author.getRole());
 	}
 }

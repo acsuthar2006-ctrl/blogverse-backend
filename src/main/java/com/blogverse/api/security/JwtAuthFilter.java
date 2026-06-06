@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +17,7 @@ import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthFilter extends OncePerRequestFilter {
 
 	private final JwtService jwtService;
@@ -62,7 +64,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		}
 
 		String token = authorization.substring(7);
-		String email = jwtService.getUsernameFromToken(token);
+
+		String email;
+		try {
+			email = jwtService.getUsernameFromToken(token);
+		} catch (Exception e) {
+			// Token is expired, malformed, or invalid — skip authentication
+			// and let the request continue unauthenticated.
+			// Public endpoints (permitAll) will still work fine.
+			log.debug("JWT token validation failed: {}", e.getMessage());
+			filterChain.doFilter(request, response);
+			return;
+		}
 
 //		checking if the current user is authenticated or not by using the email
 		if (email == null || SecurityContextHolder.getContext().getAuthentication() != null) {

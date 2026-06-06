@@ -11,6 +11,8 @@ import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 	Optional<Post> findBySlug(String slug);
+
 	Page<Post> findByAuthor(Author author, Pageable pageable);
+
 	Page<Post> findByStatus(PostStatus status, Pageable pageable);
 }

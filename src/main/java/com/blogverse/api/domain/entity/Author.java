@@ -27,7 +27,7 @@ public class Author implements UserDetails {
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name = "username")
+	@Column(name = "username", unique = true, nullable = false)
 	private String userName;
 
 	private String email;
