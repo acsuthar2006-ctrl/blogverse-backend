@@ -10,6 +10,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "posts")
@@ -34,6 +36,24 @@ public class Post {
 	@ManyToOne
 	@JoinColumn(nullable = false , name = "author_id")
 	private Author author;
+
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(
+		name = "post_categories",
+		joinColumns = @JoinColumn(name = "post_id"),
+		inverseJoinColumns = @JoinColumn(name = "category_id")
+	)
+	@Builder.Default
+	private Set<Category> categories = new HashSet<>();
+
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(
+		name = "post_tags",
+		joinColumns = @JoinColumn(name = "post_id"),
+		inverseJoinColumns = @JoinColumn(name = "tag_id")
+	)
+	@Builder.Default
+	private Set<Tag> tags = new HashSet<>();
 
 	@Builder.Default
 	@Enumerated(EnumType.STRING)
