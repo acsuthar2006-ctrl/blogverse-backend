@@ -12,25 +12,31 @@ import com.blogverse.api.exception.ResourceNotFoundException;
 import com.blogverse.api.repository.AuthorRepository;
 import com.blogverse.api.repository.PostRepository;
 import com.blogverse.api.service.PostService;
+import com.blogverse.api.util.SlugUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class PostServiceImpl implements PostService {
 
 	private final PostRepository postRepository;
 	private final AuthorRepository authorRepository;
 
 	@Override
+	@Transactional
 	public PostResponse createPost(CreatePostRequest createPostRequest, Author author) {
-		String slug = generateSlug(createPostRequest.title());
+		String slug = SlugUtils.toUniqueSlug(
+				createPostRequest.title(),
+				s -> postRepository.findBySlug(s).isEmpty()
+		);
 
 		Post post = Post.builder()
 				.slug(slug)
@@ -97,6 +103,7 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
+	@Transactional
 	public PostResponse updatePost(UpdatePostRequest updatePostRequest, String slug, Author author) {
 		Post post = postRepository.findBySlug(slug)
 				.orElseThrow(() -> new ResourceNotFoundException("Post not found for slug: " + slug));
@@ -125,6 +132,7 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
+	@Transactional
 	public void deletePost(String slug, Author author) {
 		Post post = postRepository.findBySlug(slug)
 				.orElseThrow(() -> new ResourceNotFoundException("Post not found for slug: " + slug));
@@ -134,19 +142,5 @@ public class PostServiceImpl implements PostService {
 		}
 
 		postRepository.delete(post);
-	}
-
-	private String generateSlug(String title) {
-		String slug = title.toLowerCase()
-				.replaceAll("[^a-z0-9\\s-]", "")
-				.replaceAll("\\s+", "-")
-				.replaceAll("-+", "-")
-				.trim();
-
-		if (postRepository.findBySlug(slug).isEmpty()) {
-			return slug;
-		}
-
-		return slug + "-" + UUID.randomUUID().toString().substring(0, 6);
 	}
 }

@@ -13,9 +13,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AuthServiceImpl implements AuthService {
 
 	private final AuthorRepository authorRepository;
@@ -24,6 +26,7 @@ public class AuthServiceImpl implements AuthService {
 	private final AuthenticationManager authenticationManager;
 
 	@Override
+	@Transactional
 	public AuthResponse register(RegisterRequest registerRequest) {
 		String email = registerRequest.email();
 		if (authorRepository.existsByEmail(email)) {
