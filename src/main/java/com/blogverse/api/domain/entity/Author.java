@@ -24,7 +24,8 @@ import java.util.List;
 @Builder
 public class Author implements UserDetails {
 
-	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@Column(name = "username", unique = true, nullable = false)
@@ -45,7 +46,6 @@ public class Author implements UserDetails {
 	private LocalDateTime createdAt;
 	@UpdateTimestamp
 	private LocalDateTime updatedAt;
-
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

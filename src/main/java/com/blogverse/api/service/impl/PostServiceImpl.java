@@ -1,17 +1,22 @@
 package com.blogverse.api.service.impl;
 
 import com.blogverse.api.domain.entity.Author;
+import com.blogverse.api.domain.entity.Category;
 import com.blogverse.api.domain.entity.Post;
+import com.blogverse.api.domain.entity.Tag;
 import com.blogverse.api.domain.enums.PostStatus;
 import com.blogverse.api.dto.request.CreatePostRequest;
 import com.blogverse.api.dto.request.UpdatePostRequest;
 import com.blogverse.api.dto.response.AuthorSummary;
+import com.blogverse.api.dto.response.CategorySummary;
 import com.blogverse.api.dto.response.PostResponse;
 import com.blogverse.api.dto.response.PostSummaryResponse;
 import com.blogverse.api.exception.ResourceNotFoundException;
 import com.blogverse.api.repository.AuthorRepository;
+import com.blogverse.api.repository.CategoryRepository;
 import com.blogverse.api.repository.PostRepository;
 import com.blogverse.api.service.PostService;
+import com.blogverse.api.service.TagService;
 import com.blogverse.api.util.SlugUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +26,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +36,10 @@ import java.time.LocalDateTime;
 public class PostServiceImpl implements PostService {
 
 	private final PostRepository postRepository;
+	private final CategoryRepository categoryRepository;
 	private final AuthorRepository authorRepository;
+
+	private final TagService tagService;
 
 	@Override
 	@Transactional
@@ -38,44 +49,30 @@ public class PostServiceImpl implements PostService {
 				s -> postRepository.findBySlug(s).isEmpty()
 		);
 
+		Set<Category> categories = createPostRequest.categories()
+			.stream()
+			.map(c -> categoryRepository.findBySlug(c).orElseThrow(
+				() -> new ResourceNotFoundException("Category not found")))
+			.collect(Collectors.toSet());
+
+		Set<Tag> tags = createPostRequest.tags()
+			.stream()
+			.map(tagService::findOrCreateTag)
+			.collect(Collectors.toSet());
+
 		Post post = Post.builder()
-				.slug(slug)
-				.title(createPostRequest.title())
-				.content(createPostRequest.content())
-				.summary(createPostRequest.summary())
-				.author(author)
-				.build();
+			.slug(slug)
+			.title(createPostRequest.title())
+			.content(createPostRequest.content())
+			.summary(createPostRequest.summary())
+			.author(author)
+			.categories(categories)
+			.tags(tags)
+			.build();
 
 		Post savedPost = postRepository.save(post);
 
 		return maptoPostResponse(savedPost);
-	}
-
-	private PostResponse maptoPostResponse(Post post) {
-
-		return new PostResponse(
-				post.getId(),
-				post.getTitle(),
-				post.getContent(),
-				post.getSlug(),
-				post.getSummary(),
-				post.getStatus(),
-				new AuthorSummary(post.getAuthor().getFullName(), post.getAuthor().getUsername()),
-				post.getCreatedAt(),
-				post.getPublishedAt());
-	}
-
-	private PostSummaryResponse maptoPostSummaryResponse(Post post) {
-
-		return new PostSummaryResponse(
-				post.getId(),
-				post.getTitle(),
-				post.getSlug(),
-				post.getSummary(),
-				post.getStatus(),
-				new AuthorSummary(post.getAuthor().getFullName(), post.getAuthor().getUsername()),
-				post.getCreatedAt(),
-				post.getPublishedAt());
 	}
 
 	@Override
@@ -127,6 +124,26 @@ public class PostServiceImpl implements PostService {
 				post.setPublishedAt(LocalDateTime.now());
 			}
 		}
+		if (updatePostRequest.categories() != null) {
+			Set<Category> newCategories = updatePostRequest.categories()
+				.stream()
+				.map(c -> categoryRepository.findBySlug(c).orElseThrow(
+					() -> new ResourceNotFoundException("Category not found for slug: " + c)
+				))
+				.collect(Collectors.toSet());
+
+			post.getCategories().clear();
+			post.getCategories().addAll(newCategories);
+		}
+		if (updatePostRequest.tags() != null) {
+			Set<Tag> newTags = updatePostRequest.tags()
+				.stream()
+				.map(tagService::findOrCreateTag)
+				.collect(Collectors.toSet());
+
+			post.getTags().clear();
+			post.getTags().addAll(newTags);
+		}
 
 		return maptoPostResponse(postRepository.save(post));
 	}
@@ -143,4 +160,43 @@ public class PostServiceImpl implements PostService {
 
 		postRepository.delete(post);
 	}
+
+	private PostResponse maptoPostResponse(Post post) {
+
+		return new PostResponse(
+			post.getId(),
+			post.getTitle(),
+			post.getContent(),
+			post.getSlug(),
+			post.getSummary(),
+			post.getStatus(),
+			new AuthorSummary(post.getAuthor().getFullName(), post.getAuthor().getUsername()),
+			post.getCreatedAt(),
+			post.getPublishedAt() ,
+			post.getCategories().stream()
+				.map(this::mapToCategorySummary)
+				.collect(Collectors.toList()) ,
+			post.getTags().stream()
+				.map(Tag::getName)
+				.collect(Collectors.toList())
+		);
+	}
+
+	private PostSummaryResponse maptoPostSummaryResponse(Post post) {
+
+		return new PostSummaryResponse(
+			post.getId(),
+			post.getTitle(),
+			post.getSlug(),
+			post.getSummary(),
+			post.getStatus(),
+			new AuthorSummary(post.getAuthor().getFullName(), post.getAuthor().getUsername()),
+			post.getCreatedAt(),
+			post.getPublishedAt());
+	}
+
+	private CategorySummary mapToCategorySummary(Category category) {
+		return new CategorySummary(category.getName(), category.getSlug());
+	}
+
 }

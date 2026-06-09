@@ -3,6 +3,7 @@ package com.blogverse.api.dto.response;
 import com.blogverse.api.domain.enums.PostStatus;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record PostResponse(
 	Long id ,
@@ -13,6 +14,8 @@ public record PostResponse(
 	PostStatus status ,
 	AuthorSummary authorSummary ,
 	LocalDateTime createdAt ,
-	LocalDateTime publishedAt
+	LocalDateTime publishedAt ,
+	List<CategorySummary> categories,
+	List<String> tags
 ) {
 }

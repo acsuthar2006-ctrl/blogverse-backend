@@ -2,13 +2,13 @@
 # BlogVerse API - Application Configuration
 # ============================================
 # Environment-specific secrets go in:
-#   application-dev.yaml  (local development - GITIGNORED)
+#   application-dev.yaml  (local development - GITIGNORE)
 #   application-prod.yaml (production - uses real env vars)
 # ============================================
 
 spring:
   application:
-    name: blogverse-api
+    name: blog-verse-api
 
   # Default profile for local development
   profiles:

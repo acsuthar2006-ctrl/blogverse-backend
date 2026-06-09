@@ -20,16 +20,15 @@ public class CategoryController {
 
 	private final CategoryService categoryService;
 
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@PostMapping
-	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<ApiResponse<CategoryResponse>> postCategory(
-		@RequestBody @Valid CategoryRequest categoryRequest
-	) {
+			@RequestBody @Valid CategoryRequest categoryRequest) {
 
 		CategoryResponse categoryResponse = categoryService.createCategory(categoryRequest);
 		return ResponseEntity
-			.status(HttpStatus.CREATED)
-			.body(ApiResponse.success(categoryResponse, "Category created successfully"));
+				.status(HttpStatus.CREATED)
+				.body(ApiResponse.success(categoryResponse, "Category created successfully"));
 	}
 
 	@GetMapping
@@ -37,7 +36,7 @@ public class CategoryController {
 
 		List<CategoryResponse> categoryResponseList = categoryService.findAllCategories();
 		return ResponseEntity
-			.ok(ApiResponse.success(categoryResponseList, "Categories found successfully"));
+				.ok(ApiResponse.success(categoryResponseList, "Categories found successfully"));
 	}
 
 	@GetMapping("/{slug}")
@@ -45,28 +44,26 @@ public class CategoryController {
 
 		CategoryResponse categoryResponse = categoryService.findCategoryBySlug(slug);
 		return ResponseEntity
-			.ok(ApiResponse.success(categoryResponse, "Category found successfully"));
+				.ok(ApiResponse.success(categoryResponse, "Category found successfully"));
 	}
 
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@PutMapping("/{slug}")
-	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<ApiResponse<CategoryResponse>> updateCategory(
-		@PathVariable String slug,
-		@RequestBody @Valid CategoryRequest categoryRequest
-	) {
+			@PathVariable String slug,
+			@RequestBody @Valid CategoryRequest categoryRequest) {
 		CategoryResponse categoryResponse = categoryService.updateCategoryBySlug(slug, categoryRequest);
 		return ResponseEntity
-			.ok(ApiResponse.success(categoryResponse, "Category updated successfully"));
+				.ok(ApiResponse.success(categoryResponse, "Category updated successfully"));
 	}
 
 	@DeleteMapping("/{slug}")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<Void> deleteCategory(@PathVariable String slug) {
 		categoryService.deleteCategoryBySlug(slug);
 		return ResponseEntity
-			.noContent()
-			.build();
+				.noContent()
+				.build();
 	}
 
 }
-

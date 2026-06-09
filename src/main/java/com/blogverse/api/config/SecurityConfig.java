@@ -41,6 +41,8 @@ public class SecurityConfig {
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/auth/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/tags/**").permitAll()
 						.anyRequest().authenticated())
 				.sessionManagement(session -> session
 						.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
