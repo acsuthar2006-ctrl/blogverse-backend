@@ -39,10 +39,25 @@ public class SecurityConfig {
 		http
 				.csrf(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(auth -> auth
+						// Auth endpoints
 						.requestMatchers("/auth/**").permitAll()
+
+						// Posts - public read
 						.requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
+
+						// Comments - public CRUD (editToken validated in service layer, admin check for logged-in users)
+						.requestMatchers(HttpMethod.GET, "/posts/**", "/comments/**").permitAll()
+						.requestMatchers(HttpMethod.POST, "/posts/*/comments").permitAll()
+						.requestMatchers(HttpMethod.PUT, "/comments/**").permitAll()
+						.requestMatchers(HttpMethod.DELETE, "/comments/**").permitAll()
+						// Comment replies - AUTHENTICATED ONLY
+						.requestMatchers(HttpMethod.POST, "/comments/*/replies").authenticated()
+
+						// Categories & Tags - public read
 						.requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/tags/**").permitAll()
+
+						// Everything else requires auth
 						.anyRequest().authenticated())
 				.sessionManagement(session -> session
 						.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
