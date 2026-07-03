@@ -376,8 +376,3 @@ curl -X PUT http://localhost:8080/api/v1/comments/1 \
 | `spring.jpa.ddl-auto` | `validate` | Schema managed by Flyway |
 | `spring.jpa.open-in-view` | `false` | Prevents lazy-loading bugs |
 
----
-
-## 📜 License
-
-This project is open source and available under the [MIT License](LICENSE).
