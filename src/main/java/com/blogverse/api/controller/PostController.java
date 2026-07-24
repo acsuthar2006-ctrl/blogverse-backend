@@ -59,6 +59,16 @@ public class PostController {
 			.ok(ApiResponse.success(page, "Posts found successfully"));
 	}
 
+	@GetMapping("/me")
+	public ResponseEntity<ApiResponse<Page<PostSummaryResponse>>> getMyPosts(
+		@AuthenticationPrincipal Author author,
+		Pageable pageable) {
+
+		Page<PostSummaryResponse> page = postService.findAllPostsByAuthor(author.getActualUsername(), pageable);
+		return ResponseEntity
+			.ok(ApiResponse.success(page, "Posts found successfully"));
+	}
+
 	@PutMapping("/{slug}")
 	public ResponseEntity<ApiResponse<PostResponse>> updatePost(
 		@PathVariable String slug,

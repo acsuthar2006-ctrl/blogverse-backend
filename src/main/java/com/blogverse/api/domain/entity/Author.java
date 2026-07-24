@@ -62,6 +62,10 @@ public class Author implements UserDetails {
 		return this.email;
 	}
 
+	public String getActualUsername() {
+		return this.userName;
+	}
+
 	@Override
 	public boolean isEnabled() {
 		return this.isActive;

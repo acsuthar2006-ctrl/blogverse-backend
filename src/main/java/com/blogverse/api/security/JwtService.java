@@ -55,9 +55,14 @@ public class JwtService {
 	}
 
 	public String generateToken(UserDetails userDetails) {
+		String actualUsername = null;
+		if (userDetails instanceof com.blogverse.api.domain.entity.Author author) {
+			actualUsername = author.getActualUsername();
+		}
 
 		return Jwts.builder()
 				.subject(userDetails.getUsername())
+				.claim("username", actualUsername)
 				.expiration(new Date(System.currentTimeMillis() + expiration))
 				.issuedAt(new Date())
 				.signWith(getSigningKey())
