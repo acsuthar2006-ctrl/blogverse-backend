@@ -35,7 +35,7 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) {
 		http
 				.csrf(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(auth -> auth
@@ -56,6 +56,8 @@ public class SecurityConfig {
 						// Categories & Tags - public read
 						.requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/tags/**").permitAll()
+						// Actuator endpoints - public read (or restrict to ADMIN if preferred)
+						.requestMatchers("/actuator/**").authenticated()
 
 						// Everything else requires auth
 						.anyRequest().authenticated())
@@ -76,7 +78,7 @@ public class SecurityConfig {
 
 	@Bean
 	public AuthenticationManager authenticationManager(
-			AuthenticationConfiguration config) throws Exception {
+			AuthenticationConfiguration config) {
 		return config.getAuthenticationManager();
 	}
 }

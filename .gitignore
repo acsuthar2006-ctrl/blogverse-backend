@@ -1,6 +1,7 @@
 ### Environment ###
 .env
 !.env.example
+docker-dev.env
 src/main/resources/application-dev.yaml
 
 HELP.md
